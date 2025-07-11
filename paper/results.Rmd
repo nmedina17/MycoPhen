@@ -1,0 +1,383 @@
+---
+title: ""
+# format: 
+  # html
+  # docx
+output:
+  bookdown::html_document2:
+    # toc: false
+    number_sections: false
+  # bookdown::word_document2:
+  #   # toc: false
+  #   number_sections: false
+  # bookdown::pdf_document2:
+  #   # toc: false
+  #   number_sections: false
+bibliography: MyLibrary.bib
+---
+
+
+```{r setup_results, echo=F, results='hide', warning=F, message=F}
+knitr::opts_chunk$set(
+  echo = FALSE, 
+  warning = FALSE, 
+  message = FALSE
+)
+library(here)
+i_am('paper/results.Rmd')
+
+#precursors-embedded
+source(here('stats/statTax.R'))
+
+theme_set(theme_void())
+source(here('figs/fig_qPCR_EM.R'))
+source(here('figs/figDiv.R'))
+# source(here('figs/figOrd.R'))
+source(here('figs/figET.R'))
+source(here('figs/figTax.R'))
+
+library(flextable)
+get_gam_flextable <-
+  function(gam_model) {
+    gam_model %>% 
+      
+      # summary() %>% 
+      # .$s.table %>% 
+      # as.data.frame() %>%
+      # tibble::rownames_to_column(
+      #   'Term'
+      # ) %>% 
+      # mutate(
+      #   `p-value` = `p-value` %>%
+      #   round(3),
+      #   edf = edf %>%
+      #     round(3)
+      # ) %>%
+      
+      as_flextable() %>% 
+      # colformat_num(
+      #   j = c("p-value", 
+      #         'edf'), 
+      #   digits = 3
+      # ) %>% 
+      compose(
+        #p.value
+        j = "p.value",
+        value = as_paragraph(
+          ifelse(
+            `p.value` < 
+              0.001,
+            "< 0.001",
+            sprintf(
+              "%.3f",
+              `p.value`
+            )
+          )
+        )
+      )
+  }
+```
+
+
+## *Statistics*
+
+
+<!-- ### *Data cleaning* -->
+
+All statistics were done in R version 4.4 (R Core Team 2025). 
+Site-level topsoil temperature and moisture data were smoothed using rolling averages from the previous week and filtered for those values on sampling dates. Soil moisture and temperature were combined as they were highly correlated 
+(*r* > 0.6). 
+To compare communities, we rarefied to the most common lowest number of observed sequences across samples, which was approximately 50,000 reads and excluded five samples.
+Rarefaction is currently the most widely accepted and appropriate approach for microbiome data [@schloss2024]. 
+Genus-level abundances were calculated as sums of the abundances of each ASV in the genus, and the same was done for abundances at the exploration type level. 
+Among subplots within a forest plot, genus- and group-level data were centered using median values, including in cases where trends are shown across all forest stand species. 
+Results visualizations show summed abundances by ECM binning factor, include zeros adjusted by adding one to maintain visualization when log-transformed, and median values are the central tendencies.
+
+
+<!-- ### *Time-series* -->
+
+
+<!-- **- update: better Q-Q fits and deviance explained with gam() over gamm4(), given straightforward random effect structure.**  -->
+<!-- **- te() used as it better handles different units** -->
+<!-- **- gamm4 is faster! but gam() is more flexible, and offers deviance explained** -->
+<!-- **- separate models fit to fix model convergence and make validation function runtime practical, and suggestions from @pedersen2019** -->
+
+<!-- **- chose neg. binom. theta parameter using mgcv::gam(), then used negbin() in gamm4** -->
+
+<!-- **- model GI from Pedersen 2019, t2 used in gam() to keep formula more consistent with gamm4(). t2 is mainly more flexible even in gam (i.e. no errors)** -->
+
+<!-- - taxonomy separate bams used w/ nb for time sake vs tw -->
+<!-- - models checked using performance::check_model() -->
+
+<!-- - ET separated to get ET-specific parameters, and reduce / get reasonable model runtimes and model complexity (BRMs gave oddly-consistent p-values/'pd') -->
+
+
+Statistical models were run using raw relative abundances rounded to integers as response variables rather than proportions, which allowed the use of available distribution families in the packages, namely ‘poisson’ over ‘betar’ for proportions. 
+Values that were NA were omitted during GAMM model runs and ordinations as necessary as well as zero values adjusted by one to improve model convergence. 
+Time series data were analyzed using hierarchical generalized additive mixed models (GAMMs), as implemented in the gam() function of the ‘mgcv’ package.
+<!-- ([**Wood and Scheipl 2020**](https://cran.r-universe.dev/gamm4/citation)), which is based on GAMs from mgcv ([@CITE]) but modified to use syntax of more traditional linear mixed-effects model structures (e.g. GLMM) that are used in ‘lme4’ ([@CITE]).  -->
+Overall, model structure, design, and suggested parameters were informed by relevant literature by package authors [@pedersen2019], specifically mirroring a model with a global smoother for week but independent curvature per group, and tensor t2() term to combine topsoil temperature and moisture. 
+<!-- In some cases where expanded residual distribution family options were need to establish an appropriate model fit for more narrowly subsetted data, the original and more flexible gam() function in the ‘mgcv’ package was used with restricted maximum likelihood method (REML), which reports slightly differently, such as ‘deviance explained’ instead of R2 in ‘lme4’ package methods underlying ‘gamm4’.  -->
+<!-- In these cases the choice of gam() over a gamm4() fit with similar family parameters was validated by comparing model AIC values. -->
+Main smooth components were calculated for week of year for each sampling date, to distinguish two sampling dates in the same month of June.
+Maximum ‘curvature’ knots (*k*) was always set to seven, given nine data points for the year.
+To maximize parsimony of model inferences from our study, main reported GAMMs were structured using only leaf habit as a fixed effect, and we use qualitative discussion to report differences inter-specific variation among plots within a single leaf habit (i.e. host tree species). 
+Fixed effects included leaf habit, which in this case also aligned with the evolutionary group factor of angiosperm or gymnosperm.
+Random effects included subplot, where numbers were unique within plots but not across sampling dates. 
+The mgcv::gam() function was preferred over the GAMM implementation in the 'gamm4' package because gam() handled a wider variety of error distribution families, namely negative binomial nb() and tweedie tw(), which approximates intermediate shapes between poisson and Gamma distribution families. 
+The mgcv::gam() function was also able to automatically fit the key parameter value for each family, all of which resulted in better model fits.
+All GAMMs were checked for validity, primarily focusing on fit to the 1:1 line alignments in Q-Q plots, as visualized by the appraise() function in the 'gratia' package [@CITE]. 
+Additional checks for curvature flexibility, i.e. k’ > 1 and associated p > 0.05 using the mgcv::gam.check() function were run initially but ultimately de-prioritized over fits to 1:1 lines in Q-Q plots, as *k* was fixed given bounded monthly sampling over the year, and expected overfitting was also corrected by setting *m* = 1 [@pedersen2019].
+The mgcv::gam() function also reported deviance explained, which is more appropriate than R2 for GAMs.
+Curves were separated for exploration type sums, as well as for genus-level sums in a separate model, by invoking the *by* argument in the formula smooth terms for week of year.
+Initially separate GAMMs were run for each exploration type and most abundant taxa to more specifically detail effects on each ECM fungus, but qualitative inferences were preferred due to low *edf* values caused by multiple term concurvity model in complex models.
+To reduce model complexity and run time specifically for genus-level analysis, mgcv::bam() was used with negative binomial error distribution family and *method* set to 'fREML' for fast restricted maximum likelihood estimation, which is suggested for bigger datasets with several hundred thousand rows.
+
+<!-- ### *Critical dates* -->
+
+<!-- To advance qualitative analysis of key phenological changes [@radville2016] in our times series data, key weeks for dynamic changes were extracted from separate GAMMs that were run for each plot using gratia::derivatives() and identifying weeks where its sign changed between positive and/or negative [@simpson2018*; @simpson2024*]. -->
+
+<!-- *- CVp calculated using mad/median and similar hypotheses tested using the same GAMM structure.* -->
+
+
+<!-- ### *Composition* -->
+
+For whole-community analyses, a PERMANOVA was run using all data as implemented in the ‘vegan’ package defaulting to 999 permutations. 
+Abundance values were increased by one to resolve valid NA values, which thereby included taxa that passed our previous ten-read bioinformatic cutoff to not be interpreted as sequencing noise or index bleed, and also passed rarefaction, but were detected nonetheless as absent [@willis2019*; @tatsumi2023*]. 
+As PERMANOVA can be influenced by differences in either center location or variation within a cluster of samples [@warton2012*; @anderson2001*], we also explored community dispersion as a measure of beta diversity [@anderson2006a*; @anderson2006b*] with a PERMDISP using the betadisper() function from the ‘vegan’ package.
+
+
+
+# **Results**
+
+
+
+<!-- ## *Sequencing* -->
+**Sequencing**
+
+
+After raw DNA sequence processing and initial quality control, we observed approximately 28 million 
+fungal ITS2 rDNA reads 
+and 13,096 unique fungal ASVs. 
+Community abundance data was collectively rarefied to 51,728 fungal reads, 
+which excluded five (or ~2%) samples, 
+and yielded 1,329 unique ASVs that matched with an ectomycorrhizal lifestyle. 
+Ectomycorrhizal fungi consistently represented 
+approximately 17% of total reads among community lifestyles, 
+even across sampling dates, 
+with the remaining majority being roughly equal proportions of saprotrophs (25%) as well as unknown lifestyles (25%).
+The majority (91%) of reads were assigned taxonomy at the genus level, and among reads matching to ectomycorrhizal lifestyles,
+all reads were mapped to a genus, 
+while 45% remained unassigned with taxonomy was at the species level, which was similar to degree of species-level taxonomy assignment for all fungi recovered (50%).
+
+
+<!-- **- add green growing window on time series plots?** -->
+
+
+<!-- ## *Total abundance* -->
+**Total abundance**
+
+
+```{r resTot, results='hide'}
+stat_qPCR %>% 
+  # anova.gam()
+  get_gam_flextable()
+```
+
+
+Overall, the seasonality of total ECM fungal abundance depended strongly on forest type.
+Total ECM fungal abundance was broadly consistent over the year
+(*EDF* = 1, 
+*P* = 0.145, 
+*Dev. expl.* = 15.1%)
+(\@ref(fig:figTot)a,
+Table S1), 
+despite distinct seasonal changes in site-level topsoil temperature and moisture 
+(\@ref(fig:figTot)b).
+However, total ECM fungal abundance did change over time among host tree leaf habit 
+(*P* < 0.001)
+(\@ref(fig:figTot)c).
+More specifically, the total abundance of ECM fungi that associated with deciduous stands tended to be more dynamic over time 
+(*EDF* = 1.9,
+*P* = 0.035)
+than that associated with evergreen trees 
+(*EDF* = 0.001,
+*P* < 0.001). 
+While tree stands showed similar annual covariance 
+(data not shown),
+they still showed notable qualitative differences in total ECM fungal dynamics.
+While evergreen ECM fungi basically only dipped during mid-year drought, deciduous ECM fungi tended to show bimodal patterns, either growing or decaying during transition seasons of spring and autumn, when many fungi also tend to reproduce fruiting bodies.
+Specifically, *Q. alba* showed growth peaks in both transition seasons, while instead *Q. bicolor* showed decay valleys in the same seasons.
+Alternatively, *C. ovata* showed a mix of the two, with a valley in spring and a peak in autumn.
+
+
+```{r figTot, fig.cap='(a) Quantitative PCR of the 18S region, using fungal-specific primers, over time across five temperate monodominant forest stands. Points (gray) show median ± 1 median absolute deviation (MAD) of subplots (n = 6), across approximately monthly sampling times for 9 total in the year 2023, and lines (black) show smooth ‘loess’ curves. Week of year number labels on x-axis indicate approximate equinox and solstice weeks. (b) Site-level soil moisture (left, blue) and temperature (right, orange) at 0-10 cm depth, with nine sampling dates highlighted (grey dashed lines). Data shown include raw moisture (light blue line) with ‘loess’ smooth (blue line), and raw temperature (orange) with ‘loess’ smooth (red line). (c) Same as previous panel a but separated by plot to show qualitative differences among plots as well as between deciduous (top row) and evergreen (bottom row) leaf habits.'}
+fig_qPCR_weather
+```
+
+
+<!-- **- CVp results** -->
+
+```{r figCV, fig.cap='', eval=F}
+fig_qPCR_CVp
+```
+
+
+<!-- ## *Diversity* -->
+**Diversity**
+
+
+```{r resDiv, results='hide'}
+gam_rich %>% 
+  # anova.gam()
+  get_gam_flextable()
+# gam_div %>%
+#   # anova.gam()
+#   get_gam_flextable()
+```
+
+
+Similar to total ECM fungal abundance, the seasonality of ECM fungal richness also depended on forest type 
+(\@ref(fig:figDiv)).
+Across the five monodominant forest stands,
+no seasonality in ECM fungal richness emerged
+(*EDF* = 1,
+*P* = 0.194,
+*Dev. expl.* = 45.4%) 
+(Table S2).
+In total, deciduous forest stands hosted approximately 50% (i.e. 10 to 15) more ECM fungal species than did evergreen stands 
+(*P* < 0.001). 
+Deciduous forest stands also showed distinct seasonality in fungal species richness 
+(*EDF* = 2.3,
+*P* = 0.002),
+with a peak in mid-year summer and valley in autumn,
+while evergreen stands held consistent ECM fungal species richness over the year
+(*EDF* = 0.002,
+*P* = 0.535).
+When separated by dominant tree species, ECM fungal richness tended to primarily increase in spring, with *Q. alba* continuing to increase through autumn 
+(data not shown).
+
+
+```{r figDiv, fig.cap='Ectomycorrhizal fungal species richness across five temperate monodominant forest stands, grouped by deciduous (light green) and evergreen (dark green) leaf habit trait. Points show median ± 1 median absolute deviation (MAD) of subplots (n = 6), and lines show smooth ‘loess’ curves. Dates (week of year) indicate approximately monthly sampling times throughout the year 2023, with nine dates in total.'}
+figDiv
+```
+
+
+<!-- ## **Composition** -->
+
+
+```{r resComp, results='hide'}
+# ordStat %>% 
+#   tibble::rownames_to_column() %>% 
+#   flextable()
+```
+
+
+ECM fungal communities differed in overall composition, varying interactively by forest type and sampling date 
+(*R2* = 0.09,
+*P* = 0.001),
+with communities occupying slightly different regions of ordination space 
+(data not shown).
+
+
+```{r figComp, fig.cap=''}
+# figOrd
+```
+
+
+
+<!-- ## *Exploration type* -->
+**Exploration type**
+
+
+```{r resET, results='hide'}
+gam_ET0 %>% 
+  # anova.gam()
+  get_gam_flextable()
+
+# remove PLOT:ET fixed interaction
+# use non-unique SUBPLOT
+```
+
+
+ECM fungal seasonality significantly varied by exploration type
+(*P* < 0.001,
+*Dev. expl.* = 51.7%) 
+(\@ref(fig:figET),
+Table S3).
+Exploration types with significant changes over time included both short-distance groups, coarse 
+(*EDF* = 2.4,
+*P* < 0.001)
+and delicate 
+(*EDF* = 1,
+*P* = 0.042),
+as well as medium-distance smooth 
+(*EDF* = 1,
+*P* = 0.029).
+Medium-distance smooth exploration types increased relatively consistently over the year, while short-distance types showed opposite patterns: 
+delicate types increased around summer in both deciduous and evergreen stands, while coarse types instead peaked in autumn, and only in evergreen stands.
+<!-- mat, unknown -->
+Long-distance exploration types changed marginally significantly over the year, showing a relative dip in abundance during summer
+(*EDF* = 2,
+*P* = 0.08).
+In contrast, 
+<!-- exploration types that  -->
+the abundance of medium-distance fringe
+did not change significantly throughout the year 
+<!-- long-distance -->
+<!-- (*EDF* = 1.7, -->
+<!-- *P* = 0.184),  -->
+<!-- and  -->
+<!-- medium-distance fringe  -->
+(*EDF* = 1,
+*P* = 0.297), 
+despite showing some clear qualitative trends, such as consistent increases in medium-distance fringe.
+Contact types were consistent over the year 
+<!-- (*EDF* = 1, -->
+<!-- *P* = 0.0),  -->
+and were much more abundant in deciduous stands than in evergreen stands.
+Topsoil moisture and temperature appeared to explain notable amounts of curvature in ECM fungal exploration type abundances, but did not emerge as significant from our data for this year
+(*EDF* = 3,
+*P* = 0.257).
+Spatial variation among subplots was a significant predictor of ECM fungal exploration types, but overall temporal curvature was linear
+(*EDF* = 1,
+*P* = 0.009).
+
+<!-- - contact smooth? -->
+
+
+<!-- **- CVp results** -->
+
+```{r figET, fig.cap='Phenology of each ectomycorrhizal exploration type among five temperate monodominant forest stands, in either evergreen (dark green) or deciduous (light green) stands. Lines show smooth loess curves (n = 6) across mean values among subplots ± 1 SE per sampling date. Dates (week of year) indicate approximately monthly sampling times throughout the year 2023, with nine dates in total.'}
+figET
+```
+
+
+<!-- # *Taxonomy* -->
+
+```{r resTax, results='hide'}
+gam_tax %>% 
+  # anova.gam()
+  get_gam_flextable()
+```
+
+
+All ECM fungal genera showed significant seasonal changes in abundance over the year 
+(*P* < 0.001,
+*Dev. expl.* = 10%) 
+(Table S4).
+ECM fungal genera showing peaks in early or mid-year included 
+*Inocybe*,
+*Tuber*,
+*Cortinarius*,
+and *Amphina*; 
+while genera peaking later in autumn included 
+*Tomentella* 
+and *Wilcoxina* 
+(Fig. S#).
+Topsoil moisture and temperature did not explain ECM fungal abundances at the genus level 
+(*EDF* < 0.1,
+*P* = 1),
+while there was detectable spatial variation among subplots 
+(*EDF* = 5,
+*P* < 0.001).

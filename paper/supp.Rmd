@@ -1,0 +1,802 @@
+---
+title: "Supplementary information"
+format: html
+# format: pdf
+# format: docx
+bibliography: MyLibrary.bib
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, echo=F, results='hide', message=F, warning=F}
+knitr::opts_chunk$set(
+  echo = F,
+  message = F,
+  warning = F
+)
+library(here)
+i_am('paper/supp.Rmd')
+# source(here('stats/statPCR.R'))
+# source(here('stats/statDiv.R'))
+source(here('stats/statTax.R'))
+
+source(here('figs/figTax.R'))
+# library(dplyr)
+
+# theme_set(theme_void())
+
+format_flextable <- function(
+    df, 
+    title, 
+    p_alpha = 0.1,
+    limit = 0.001
+  ) {
+  require(flextable)
+  require(dplyr)
+  # tbl <- summary(df)$p.table %>% 
+  #   as.data.frame() %>%
+  #   tibble::rownames_to_column("Term")
+  # ft <- tbl %>% 
+  df %>% 
+    
+    # as.data.frame() %>%
+    # tibble::rownames_to_column("Term") %>%
+    
+    # mutate(
+    #   'p_bold' = 
+    #     `p-value` < 
+    #     p_alpha
+    # ) %>%
+    
+    as_flextable() %>%
+    # bold(i = ~ tbl$`Pr(>|t|)` < p_bold) %>% 
+    # theme_vanilla() %>%
+    theme_alafoli() %>%
+    autofit() %>%
+    add_header_lines(title) %>% 
+    fontsize(size = 10) %>% 
+    # colformat_num(
+    #   j = "p.value",   # column name
+    #   digits = 3
+    # ) %>% 
+    # bold(
+    #   j = c("Term", "edf", "Std. Error"), 
+    #   bold = TRUE
+    # ) %>%
+    # colformat_num(
+    #   j = "p-value", 
+    #   digits = 3
+    # ) #%>%  # Round nicely
+    # compose(
+    #   j = "p-value",
+    #   value = as_paragraph(
+    #     as_chunk(
+    #       `p-value`, 
+    #       props = fp_text_default(
+    #         bold = TRUE
+    #       )
+    #     )
+    #   ),
+    #   i = ~ p_bold
+    # ) #%>% 
+    compose(
+      #p.value
+      j = "p.value",
+      value = as_paragraph(
+        ifelse(
+          p.value < 
+            limit,
+          "< 0.001",
+          sprintf(
+            "%.3f",
+            p.value
+          )
+        )
+      )
+    )
+}
+
+
+# format_brm_flextable <- function(df) {
+#   library(parameters)
+#   parameters::model_parameters(
+#     ci = 0.95, 
+#     exponentiate = T, #fam
+#     test = "pd" #prob.dir.
+#   ) %>% 
+#   filter(
+#     str_detect(
+#       Parameter, 
+#       '1$' #chain_1only
+#     )
+#   )
+# }
+```
+
+<!-- **Supplementary information: Seasonal dynamics of ectomycorrhizal fungi vary at the host tree and fungal identity level** -->
+
+This document's structure mirrors that of the original paper, as suggested by @greenbaum2017.
+Statistical GAM output tables are organized and presented using the *'flextable'* R package.
+
+<!-- # **Methods** -->
+
+<!-- ## *Study site* -->
+
+<!-- **Table S#**. **Table 1** reproduced from *@midgley2020* showing soil properties of the subset of ten plots used for this study. -->
+
+
+<!-- # **Results** -->
+**Results**
+
+
+## Abundance
+
+```{r stat_qPCR_draw, eval=F}
+stat_qPCR %>% gratia::draw()
+```
+
+<!-- **Fig S#**. -->
+
+**Table S1**.
+Output showing generalized additive models (GAM) of quantitative soil fungal 18S rDNA amplification, 
+subset by the total proportion of sequenced DNA reads matching to ectomycorrhizal fungal lifestyles in the FungalTraits database [@polme2020].
+
+```{r stat_qPCR_gam}
+stat_qPCR %>% 
+  # summary() %>%
+  # as.data.frame() %>% 
+  # .$s.table %>%
+  format_flextable(
+    'qPCR result, \n GAM with tweedie tw(theta = 1.9) distribution family'
+  )
+# brm_PCR %>% 
+#   format_brm_flextable(
+#     # 'qPCR result, \n BRM with negbinomial() distribution family'
+#   )
+```
+
+<!-- **Table S#.** -->
+
+```{r stat_qPCR_emmeans, eval=F}
+stat_qPCR_comparisons %>% 
+  format_flextable(
+    'qPCR result, \n emmeans() pairwise comparisons of GAM fixed effects'
+  )
+```
+
+
+## Diversity
+
+
+<!-- # no need -->
+<!-- **Fig. S1**. -->
+<!-- Fully separate by plot... -->
+
+
+### *Richness*
+
+```{r stat_rich_draw, eval=F}
+gam_rich %>% gratia::draw()
+```
+
+<!-- **Fig S#**. -->
+
+**Table S2**.
+Output showing the generalized additive model (GAM) of ectomycorrhizal species (ASV) richness, using week of year and host tree species leaf habit as main predictors.
+
+```{r stat_rich_gam}
+gam_rich %>% 
+  format_flextable(
+    'Diversity: Richness, \n GAM with poisson distribution family'
+  )
+```
+
+<!-- #### *Variance* -->
+
+```{r stat_rich_var, eval=F}
+glmm_rich_CVp %>% 
+  format_flextable(
+    'Diversity: Richness, \n GLMM with Poisson distribution family'
+  )
+```
+
+<!-- **Table S#**. -->
+
+```{r stat_rich_emmeans, eval=F}
+gam_rich_comparisons %>% 
+  format_flextable(
+    'Diversity: Richness, \n emmeans() pairwise comparisons of GAM fixed effects'
+  )
+```
+
+
+### *Entropy*
+
+```{r stat_div_draw, eval=F}
+gam_div %>% gratia::draw()
+```
+
+<!-- **Fig S#**. -->
+
+**Table S#**.
+Output showing the generalized additive model (GAM) of ectomycorrhizal species (ASV) diversity (Shannon entropy), using week of year and host tree species leaf habit as main predictors.
+
+```{r stat_div_gam}
+gam_div %>% 
+  format_flextable(
+    'Diversity: Richness, \n GAMM with poisson distribution family'
+  )
+```
+
+<!-- #### *Variance* -->
+
+```{r stat_div_var, eval=F}
+glmm_div_CVp %>% 
+  format_flextable(
+    'Diversity: Shannon, \n GLMM with ___ distribution family'
+  )
+```
+
+<!-- **Table S#** -->
+
+```{r stat_div_emmeans, eval=F}
+gam_div_comparisons %>% 
+  format_flextable(
+    'Diversity: Shannon, \n emmeans() pairwise comparisons of GAM fixed effects'
+  )
+```
+
+
+## Exploration type
+
+
+<!-- ### Overall -->
+
+**Table S3.**
+Output showing the generalized additive model (GAM) of ectomycorrhizal fungal exploration type abundances, using week of year and host tree species leaf habit as main predictors.
+
+```{r statET}
+
+# overall model
+gam_ET0 %>% 
+  format_flextable(
+    'Exploration type, \n GAM with neg. binom. nb(0.439) distribution family'
+  )
+```
+
+
+
+<!-- ### Long-distance -->
+
+```{r statET_long_draw, eval=F}
+statET_long %>% gratia::draw()
+```
+
+<!-- **Fig S#.** -->
+
+<!-- **Table S#.** -->
+
+```{r statET_long_gam, eval=F}
+statET_long %>% 
+  format_flextable(
+    'Long-distance ectomycorrhizal fungal exploration type, \n GAM with tweedie tw(1.705) distribution family'
+  )
+```
+
+<!-- **Table S#.** -->
+
+```{r statET_long_emmeans, eval=F}
+statET_long_comparisons %>% 
+  format_flextable(
+    'Long-distance ectomycorrhizal fungal exploration type, \n emmeans() pairwise comparisons of GAM fixed effects'
+  )
+```
+
+<!-- ### Contact -->
+
+```{r statET_contact_draw, eval=F}
+statET_contact %>% gratia::draw()
+```
+
+<!-- **Fig S#.** -->
+
+<!-- **Table S#.** -->
+
+```{r statET_contact_gam, eval=F}
+statET_contact %>% 
+  format_flextable(
+    'Contact ectomycorrhizal fungal exploration type, \n GAM with tweedie tw(1.668) distribution family'
+  )
+```
+
+<!-- **Table S#.** -->
+
+```{r statET_contact_emmeans, eval=F}
+statET_contact_comparisons %>% 
+  format_flextable(
+    'Contact ectomycorrhizal fungal exploration type, \n emmeans() pairwise comparisons of GAM fixed effects'
+  )
+```
+
+<!-- ### Medium-distance-fringe -->
+
+```{r statET_medFringe_draw, eval=F}
+statET_medFringe %>% gratia::draw()
+```
+
+<!-- **Fig S#.** -->
+
+<!-- **Table S#.** -->
+
+```{r statET_medFringe_gam, eval=F}
+statET_medFringe %>% 
+  format_flextable(
+    'Medium-distance fringe ectomycorrhizal fungal exploration type, \n GAM with neg. binom. nb(0.585) distribution family'
+  )
+```
+
+<!-- **Table S#.** -->
+
+```{r statET_medFringe_emmeans, eval=F}
+statET_medFringe_comparisons %>% 
+  format_flextable(
+    'Medium-distance fringe ectomycorrhizal fungal exploration type, \n emmeans() pairwise comparisons of GAM fixed effects'
+  )
+```
+
+<!-- ### Medium-distance-smooth -->
+
+```{r statET_medSmooth_draw, eval=F}
+statET_medSmooth %>% gratia::draw()
+```
+
+<!-- **Fig S#.** -->
+
+<!-- **Table S#.** -->
+
+```{r statET_medSmooth_gam, eval=F}
+statET_medSmooth %>% 
+  format_flextable(
+    'Medium-distance smooth ectomycorrhizal fungal exploration type, \n GAM with tweedie tw(1.554) distribution family'
+  )
+```
+
+<!-- **Table S#.** -->
+
+```{r statET_medSmooth_emmeans, eval=F}
+statET_medSmooth_comparisons %>% 
+  format_flextable(
+    'Medium-distance smooth ectomycorrhizal fungal exploration type, \n emmeans() pairwise comparisons of GAM fixed effects'
+  )
+```
+
+<!-- ### Short-distance-delicate -->
+
+```{r statET_shortDelicate_draw, eval=F}
+statET_shortDelicate %>% gratia::draw()
+```
+
+<!-- **Fig S#.** -->
+
+<!-- **Table S#.** -->
+
+```{r statET_shortDelicate_gam, eval=F}
+statET_shortDelicate %>% 
+  format_flextable(
+    'Short-distance delicate ectomycorrhizal fungal exploration type, \n GAM with tweedie tw(1.572) distribution family'
+  )
+```
+
+<!-- **Table S#.** -->
+
+```{r statET_shortDelicate_emmeans, eval=F}
+statET_shortDelicate_comparisons %>% 
+  format_flextable(
+    'Short-distance delicate ectomycorrhizal fungal exploration type, \n emmeans() pairwise comparisons of GAM fixed effects'
+  )
+```
+
+<!-- ### Short-distance-coarse -->
+
+```{r statET_shortCoarse_draw, eval=F}
+statET_shortCoarse %>% gratia::draw()
+```
+
+<!-- **Fig S#.** -->
+
+<!-- **Table S#.** -->
+
+```{r statET_shortCoarse_gam, eval=F}
+statET_shortCoarse %>% 
+  format_flextable(
+    'Short-distance coarse ectomycorrhizal fungal exploration type, \n GAM with tweedie tw(1.654) distribution family'
+  )
+```
+
+<!-- **Table S#.** -->
+
+```{r statET_shortCoarse_emmeans, eval=F}
+statET_shortCoarse_comparisons %>% 
+  format_flextable(
+    'Short-distance coarse ectomycorrhizal fungal exploration type, \n emmeans() pairwise comparisons of GAM fixed effects'
+  )
+```
+
+
+## Taxonomy
+
+
+<!-- ### *Overall* -->
+
+
+**Table S4.**
+Output showing the generalized additive model (GAM) of ectomycorrhizal fungal genus abundances, using week of year and host tree species leaf habit as main predictors.
+
+```{r statTax}
+gam_tax %>% 
+  # summary()
+  # anova.gam() %>% 
+  format_flextable(
+    'Taxonomy, \n GAM with neg. binom. nb(p=0.22) distribution family'
+  )
+```
+
+
+<!-- **- CVp results** -->
+
+```{r figTax}
+figTax
+```
+
+**Fig. S2.**
+Phenology of each ectomycorrhizal fungal genus among five temperate monodominant forest stands, in either evergreen (dark green) or deciduous (light green) stands. 
+Lines show smooth loess curves (n = 6) across mean values among subplots ± 1 SE per sampling date. 
+Dates (week of year) indicate approximately monthly sampling times throughout the year 2023, with nine dates in total.
+
+
+```{r figTax_plot}
+figTax_plot
+```
+
+**Fig. S3.**
+Phenology of each ectomycorrhizal fungal genus for each of five temperate monodominant forest stands, color coded by fungal genus. 
+Lines show smooth loess curves (n = 6) across mean values among subplots ± 1 SE per sampling date. 
+Dates (week of year) indicate approximately monthly sampling times throughout the year 2023, with nine dates in total.
+
+
+<!-- ### *Russula* -->
+
+```{r statTax_Russula_draw, eval=F}
+statTax_Russula %>% gratia::draw()
+```
+
+<!-- **Fig S#.** -->
+
+<!-- **Table S#.** -->
+
+```{r statTax_Russula_gam, eval=F}
+bam_tax_Russula %>% 
+  format_flextable(
+    'Russula, \n GAMM with  distribution family'
+  )
+```
+
+<!-- **Table S#.** -->
+
+```{r statTax_Russula_emmeans, eval=F}
+gam_tax_Russula_comparisons %>% 
+  format_flextable(
+    'Russula, \n emmeans() pairwise comparisons of GAM fixed effects'
+  )
+```
+
+<!-- ### *Inocybe* -->
+
+```{r statTax_Inocybe_draw, eval=F}
+gam_tax_Inocybe %>% gratia::draw()
+```
+
+<!-- **Fig S#.** -->
+
+<!-- **Table S#.** -->
+
+```{r statTax_Inocybe_gam, eval=F}
+bam_tax_Inocybe %>% 
+  format_flextable(
+    'Inocybe, \n GAMM with  distribution family'
+  )
+```
+
+<!-- **Table S#.** -->
+
+```{r statTax_Inocybe_emmeans, eval=F}
+gam_tax_Inocybe_comparisons %>% 
+  format_flextable(
+    'Inocybe, \n emmeans() pairwise comparisons of GAM fixed effects'
+  )
+```
+
+<!-- ### *Tuber* -->
+
+```{r statTax_Tuber_draw, eval=F}
+gam_tax_Tuber %>% gratia::draw()
+```
+
+<!-- **Fig S#.** -->
+
+<!-- **Table S#.** -->
+
+```{r statTax_Tuber_gam, eval=F}
+bam_tax_Tuber %>% 
+  format_flextable(
+    'Tuber, \n GAMM with  distribution family'
+  )
+```
+
+<!-- **Table S#.** -->
+
+```{r statTax_Tuber_emmeans, eval=F}
+gam_tax_Tuber_comparisons %>% 
+  format_flextable(
+    'Tuber, \n emmeans() pairwise comparisons of GAM fixed effects'
+  )
+```
+
+<!-- ### *Tomentella* -->
+
+```{r statTax_Tomentella_draw, eval=F}
+gam_tax_Tomentella %>% gratia::draw()
+```
+
+<!-- **Fig S#.** -->
+
+<!-- **Table S#.** -->
+
+```{r statTax_Tomentella_gam, eval=F}
+bam_tax_Tomentella %>% 
+  format_flextable(
+    'Tomentella, \n GAMM with  distribution family'
+  )
+```
+
+<!-- **Table S#.** -->
+
+```{r statTax_Tomentella_emmeans, eval=F}
+gam_tax_Tomentella_comparisons %>% 
+  format_flextable(
+    'Tomentella, \n emmeans() pairwise comparisons of GAM fixed effects'
+  )
+```
+
+<!-- ### *Amphinema* -->
+
+```{r statTax_Amphinema_draw, eval=F}
+gam_tax_Amphinema %>% gratia::draw()
+```
+
+<!-- **Fig S#.** -->
+
+<!-- **Table S#.** -->
+
+```{r statTax_Amphinema_gam, eval=F}
+bam_tax_Amphinema %>% 
+  format_flextable(
+    'Amphinema, \n GAMM with  distribution family'
+  )
+```
+
+<!-- **Table S#.** -->
+
+```{r statTax_Amphinema_emmeans, eval=F}
+gam_tax_Amphinema_comparisons %>% 
+  format_flextable(
+    'Amphinema, \n emmeans() pairwise comparisons of GAM fixed effects'
+  )
+```
+
+<!-- ### *Wilcoxina* -->
+
+```{r statTax_Wilcoxina_draw, eval=F}
+gam_tax_Wilcoxina %>% gratia::draw()
+```
+
+<!-- **Fig S#.** -->
+
+<!-- **Table S#.** -->
+
+```{r statTax_Wilcoxina_gam, eval=F}
+bam_tax_Wilcoxina %>% 
+  format_flextable(
+    'Wilcoxina, \n GAMM with  distribution family'
+  )
+```
+
+<!-- **Table S#.** -->
+
+```{r statTax_Wilcoxina_emmeans, eval=F}
+gam_tax_Wilcoxina_comparisons %>% 
+  format_flextable(
+    'Wilcoxina, \n emmeans() pairwise comparisons of GAM fixed effects'
+  )
+```
+
+<!-- ### *Elaphomyces* -->
+
+```{r statTax_Elaphomyces_draw, eval=F}
+gam_tax_Elaphomyces %>% gratia::draw()
+```
+
+<!-- **Fig S#.** -->
+
+<!-- **Table S#.** -->
+
+```{r statTax_Elaphomyces_gam, eval=F}
+bam_tax_Elaphomyces %>% 
+  format_flextable(
+    'Elaphomyces, \n GAMM with  distribution family'
+  )
+```
+
+<!-- **Table S#.** -->
+
+```{r statTax_Elaphomyces_emmeans, eval=F}
+gam_tax_Elaphomyces_comparisons %>% 
+  format_flextable(
+    'Elaphomyces, \n emmeans() pairwise comparisons of GAM fixed effects'
+  )
+```
+
+<!-- ### *Sebacina* -->
+
+```{r statTax_Sebacina_draw, eval=F}
+gam_tax_Sebacina %>% gratia::draw()
+```
+
+<!-- **Fig S#.** -->
+
+<!-- **Table S#.** -->
+
+```{r statTax_Sebacina_gam, eval=F}
+bam_tax_Sebacina %>% 
+  format_flextable(
+    'Sebacina, \n GAMM with  distribution family'
+  )
+```
+
+<!-- **Table S#.** -->
+
+```{r statTax_Sebacina_emmeans, eval=F}
+gam_tax_Sebacina_comparisons %>% 
+  format_flextable(
+    'Sebacina, \n emmeans() pairwise comparisons of GAM fixed effects'
+  )
+```
+
+<!-- ### *Hygrophorus* -->
+
+```{r statTax_Hygrophorus_draw, eval=F}
+gam_tax_Hygrophorus %>% gratia::draw()
+```
+
+<!-- **Fig S#.** -->
+
+<!-- **Table S#.** -->
+
+```{r statTax_Hygrophorus_gam, eval=F}
+gam_tax_Hygrophorus %>% 
+  format_flextable(
+    'Hygrophorus, \n GAMM with  distribution family'
+  )
+```
+
+<!-- **Table S#.** -->
+
+```{r statTax_Hygrophorus_emmeans, eval=F}
+gam_tax_Hygrophorus_comparisons %>% 
+  format_flextable(
+    'Hygrophorus, \n emmeans() pairwise comparisons of GAM fixed effects'
+  )
+```
+
+<!-- ### *Cortinarius* -->
+
+```{r statTax_Cortinarius_draw, eval=F}
+gam_tax_Cortinarius %>% gratia::draw()
+```
+
+<!-- **Fig S#.** -->
+
+<!-- **Table S#.** -->
+
+```{r statTax_Cortinarius_gam, eval=F}
+gam_tax_Cortinarius %>% 
+  format_flextable(
+    'Cortinarius, \n GAMM with  distribution family'
+  )
+```
+
+<!-- **Table S#.** -->
+
+```{r statTax_Cortinarius_emmeans, eval=F}
+gam_tax_Cortinarius_comparisons %>% 
+  format_flextable(
+    'Cortinarius, \n emmeans() pairwise comparisons of GAM fixed effects'
+  )
+```
+
+```{r statTax_old, eval=F}
+
+# overall model
+
+gamm4_tax_week_Russula_leaf %>% 
+  format_gam_flextable(
+    'Russula, \n week effect by leaf habit; \n poisson distribution family'
+  )
+
+#host = same
+
+gamm4_tax_week_Inocybe_leaf %>% 
+  format_gam_flextable(
+    'Inocybe, \n week effect by leaf habit; \n poisson distribution family'
+  )
+
+#host = same
+
+gamm4_tax_week_Tuber_leaf %>% 
+  format_gam_flextable(
+    'Tuber, \n week effect by leaf habit; \n poisson distribution family'
+  )
+
+#host = same
+
+gamm4_tax_week_Tomentella_leaf %>% 
+  format_gam_flextable(
+    'Tomentella, \n week effect by leaf habit; \n poisson distribution family'
+  )
+
+#host = same
+
+gamm4_tax_week_Amphinema_leaf %>% 
+  format_gam_flextable(
+    'Amphinema, \n week effect by leaf habit; \n poisson distribution family'
+  )
+
+#host = same
+
+gamm4_tax_week_Wilcoxina_leaf %>% 
+  format_gam_flextable(
+    'Wilcoxina, \n week effect by leaf habit; \n poisson distribution family'
+  )
+
+#host = same
+
+gam_tax_week_Elaphomyces_leaf %>% 
+  format_gam_flextable(
+    'Elaphomyces, \n week effect by leaf habit; \n tweedie tw(1.7) distribution family'
+  )
+
+#host = same
+
+gam_tax_week_Sebacina_leaf %>% 
+  format_gam_flextable(
+    'Sebacina, \n week effect by leaf habit; \n tweedie tw(1.75) distribution family'
+  )
+
+#host = tw(1.7)
+
+gam_tax_week_Hygrophorus_leaf %>% 
+  format_gam_flextable(
+    'Hygrophorus, \n week effect by leaf habit; \n neg.binom. nb(1.8) distribution family'
+  )
+
+#host = nb(0.2)
+
+gam_tax_week_Cortinarius_leaf %>% 
+  format_gam_flextable(
+    'Cortinarius, \n week effect by leaf habit; \n neg.binom. nb(0.2) distribution family'
+  )
+
+#host = nb(0.26)
+```
+
+\pagebreak
