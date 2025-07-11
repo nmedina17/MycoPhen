@@ -11,7 +11,6 @@ library(ggplot2)
 source(
   here('data/import.R')
 )
-# ASVsITSrarFull_EM_QC
 
 library(purrr) #::modify()
 library(vegan); #select()
@@ -181,6 +180,7 @@ choiceEMFgenera <-
 # ASVsITSrar_commTbl <- ASVsITSrar_comm %>% as_tibble() %>%
 #   mutate(across(everything(), as.numeric))
 
+
 ASVsITSrarFull_EMFfilt_commTbl <- 
   
   ASVsITSrarFull_EM_QC %>%
@@ -318,12 +318,7 @@ ASVsITSrarFull_EMFfiltExploreSum <-
   ) %>%
   arrange(PLOT_G.spp,
           YYYYMMDD,
-          SUBPLOT) #%>%  #check
-
-  # left_join(
-  #   # FungalTraits %>%
-  #   #   as_tibble() 
-  # )
+          SUBPLOT) 
 
 
 #corrplot----
