@@ -193,6 +193,9 @@ gam_tax <- readRDS(
 )
 
 
+# CODE BELOW IS LEGACY
+
+
 # tic() #5h
 # bam_tax <- 
 #   ASVsITSrarFull_EMFfiltSum_topTen %>%
@@ -512,7 +515,7 @@ run_bam_structure <-
   }
 
 
-### sep ----
+### separate ----
 
 
 #### Russ ----

@@ -173,6 +173,9 @@ gam_rich_comparisons <-
   get_emmeans_table()
 
 
+# BELOW CODE IS LEGACY
+
+
 #CVp----
 
 

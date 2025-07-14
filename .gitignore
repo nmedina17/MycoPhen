@@ -2,6 +2,7 @@
 .Rproj.user
 data/
 paper/
+.Rhistory
 
 figs/*.png
 figs/*.pdf

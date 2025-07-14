@@ -368,7 +368,10 @@ summary()
 # 
 
 
-# sep ----
+# CODE BELOW IS LEGACY
+
+
+# separate ----
 
 
 # par(mfrow = c(2,2)) #gratia

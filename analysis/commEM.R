@@ -1,3 +1,6 @@
+# this file initiates community ecology analyses 
+
+
 # setup----
 
 
@@ -8,6 +11,7 @@ library(tidyr);
 library(stringr); 
 library(ggplot2)
 
+# dependency file, mainly generates ASV table object 'ASVsITSrarFull_EM_QC'
 source(
   here('data/import.R')
 )
@@ -189,16 +193,18 @@ ASVsITSrarFull_EMFfilt_commTbl <-
     WEEK = week(YYYYMMDD)
   ) %>%
   
-  select(asv_id, 
-         seqID : PLATE_ID, 
-         SUBPLOT_unique,
-         SUBPLOT,
-         Group,
-         WEEK,
-         PLOT_G.spp, 
-         Temp1_7d_avg,
-         Moisture1_7d_avg,
-         YYYYMMDD) %>% #!G.spp!!
+  select(
+    asv_id, 
+    seqID : PLATE_ID, 
+    SUBPLOT_unique,
+    SUBPLOT,
+    Group,
+    WEEK,
+    PLOT_G.spp, 
+    Temp1_7d_avg,
+    Moisture1_7d_avg,
+    YYYYMMDD
+  ) %>% #!G.spp!!
   pivot_wider(
     names_from = asv_id,
     values_from = abund,
@@ -207,6 +213,29 @@ ASVsITSrarFull_EMFfilt_commTbl <-
   arrange(ID) #check
 # select(!c(seqID, PLOT:PLATE_ID))
 # stats::prcomp(ASVsITSrarFull_EMFfilt_commTbl[,7:1334]) #alt
+
+
+### export ----
+
+ASVsITSrarFull_EMFfilt_commTbl %>% 
+  rename(
+    'SAMPLE_ID' = ID
+  ) %>%
+  select(
+    -c(
+      seqID,
+      PLATE_ID, 
+      SUBPLOT_unique
+    )
+  ) %>%
+vroom::vroom_write(
+  file = here('analysis/ASVsITS2rarFull_EMF_commTbl.csv'),
+  delim = ',',
+  col_names = TRUE,
+  na = 'NA'
+)
+
+
 ASVsITSrarFull_EMFfilt_comm <- 
   ASVsITSrarFull_EMFfilt_commTbl %>%
   select(starts_with('ASV')) #%>% #glimpse()

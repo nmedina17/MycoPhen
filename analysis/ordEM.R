@@ -1,10 +1,17 @@
+# this file runs community ordination analysis of soil ECM fungi
+
+
 # setup ----
 
 library(here); 
 here::i_am('analysis/ordEM.R')
 
+
+# dependency files, both need to be run once
+
 # source(here('data/import.R'))
 source(here('analysis/commEM.R'))
+
 
 library(vegan)
 library(tibble) 
