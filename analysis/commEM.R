@@ -215,7 +215,7 @@ ASVsITSrarFull_EMFfilt_commTbl <-
 # stats::prcomp(ASVsITSrarFull_EMFfilt_commTbl[,7:1334]) #alt
 
 
-### export ----
+### data-export ----
 
 ASVsITSrarFull_EMFfilt_commTbl %>% 
   rename(
