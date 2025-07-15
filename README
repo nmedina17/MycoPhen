@@ -1,0 +1,9 @@
+Code for: Temporal dynamics of ectomycorrhizal fungi: Leaf habit and exploration strategy explain seasonal variation in community abundance and composition
+
+This code project repository includes qPCR and community data tables in the analysis/ folder, but sequence data will be posted separately in NCBI sequence database.
+
+To run this code, import analysis/qPCRfullQC_EM.csv and analysis/ASVsITS2rarFull_EMF_commTbl.csv, and then stat*.R files in stats/ folder, as well as fig*.R files in figs/ folder, should be able to be run. 
+
+All package dependencies are listed, organized, and mediated through the 'renv' package, which uses the renv/ folder.
+
+A couple small additional objects in analysis/commEM.R file may be needed to subset focal taxa of interest.
