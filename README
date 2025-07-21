@@ -1,9 +1,17 @@
+This metadata README includes core information as outlined by Dryad good practices.
+
+# Title
 Code for: Temporal dynamics of ectomycorrhizal fungi: Leaf habit and exploration strategy explain seasonal variation in community abundance and composition
 
-This code project repository includes qPCR and community data tables in the analysis/ folder, but sequence data will be posted separately in NCBI sequence database.
+# Description
+This code project repository includes qPCR and community data tables in the analysis/ folder. 
 
-To run this code, import analysis/qPCRfullQC_EM.csv and analysis/ASVsITS2rarFull_EMF_commTbl.csv, and then stat*.R files in stats/ folder, as well as fig*.R files in figs/ folder, should be able to be run. 
+# File structure
+To run this code, import from the analysis/ folder the files qPCRfullQC_EM.csv and ASVsITS2rarFull_EMF_commTbl.csv, and then stat*.R files in stats/ folder, as well as fig*.R files in figs/ folder.
+Optional objects in analysis/commEM.R file help to subset focal taxa of interest.
 
+# Sharing/Access information
+Sequence data files are uploaded to NCBI repository, under Accession PRJNA1293086.
+
+# Code/Software
 All package dependencies are listed, organized, and mediated through the 'renv' package, which uses the renv/ folder.
-
-A couple small additional objects in analysis/commEM.R file may be needed to subset focal taxa of interest.
