@@ -15,3 +15,4 @@ Sequence data files are uploaded to NCBI repository, under Accession PRJNA129308
 
 # Code/Software
 All package dependencies are listed, organized, and mediated through the 'renv' package, which uses the renv/ folder.
+A copy of this code also uploaded/linked with Zenodo, under DOI 10.5281/zenodo.16289134.
