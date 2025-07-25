@@ -49,6 +49,9 @@ statET_data <-
   )
 
 
+# anything commented out is no longer used
+
+
 #full----
 
 
@@ -192,6 +195,10 @@ gam_ET0 %>%
 # gam.check() # !OK but OK?
 # car::Anova()
 summary()
+
+
+
+# CODE BELOW IS LEGACY
 
 
 
@@ -368,7 +375,6 @@ summary()
 # 
 
 
-# CODE BELOW IS LEGACY
 
 
 # separate ----

@@ -56,11 +56,13 @@ ASVsITSrarFull_EMFfiltSum_focal <-
 
 ### GAMM ----
 
+
 # 
 # #long = 20min...
 # Sys.time()
 # future::plan(multisession);
 K <- 7
+
 
 tic() #tw=15min #nb=10/8min
 gam_tax <-

@@ -4,6 +4,9 @@
 library(here); 
 here::i_am('stats/statDiv.R')
 
+# dont run lines commented out if they were already run once per session
+
+
 # source(
 #   here('data/import.R')
 # )
@@ -11,6 +14,8 @@ here::i_am('stats/statDiv.R')
 # source(
 #   here('analysis/commEM.R')
 # )
+
+
 source(
   here('stats/statPCR.R')
 )
@@ -27,6 +32,7 @@ library(tictoc)
 
 
 #data----
+# prepare data
 
 
 stat_div_data <-
@@ -54,6 +60,7 @@ stat_div_data <-
 
 
 # rich ----
+# species richness
 
 
 gamm4_rich <- gamm4(
@@ -90,7 +97,9 @@ gamm4_rich <- gamm4(
   # car::Anova()
 
 
+
 ##gam----
+# Generalized Additive Model (GAM) for richness
 
 K = 7
 
@@ -173,10 +182,13 @@ gam_rich_comparisons <-
   get_emmeans_table()
 
 
-# BELOW CODE IS LEGACY
+
+
+# BELOW CODE IS LEGACY, NOT USED
 
 
 #CVp----
+# variance
 
 
 glmm_rich_CVp <-

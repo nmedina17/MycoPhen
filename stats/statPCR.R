@@ -92,7 +92,7 @@ stat_qPCR_data <-
   )
 
 
-# BELOW CODE IS LEGACY
+# BELOW CODE IS LEGACY, NOT USED
 
 
 #CVp----
@@ -334,6 +334,9 @@ stat_qPCR_comparisons <-
   get_emmeans_table()
 
 
+# Bayesian version below not used
+
+
 ##brm----
 
 
@@ -483,7 +486,7 @@ stat_qPCR_comparisons <-
 
 
 
-# old ----
+# OLD GAM TRIALS ----
 
 
 # stat_qPCR_curves <- 

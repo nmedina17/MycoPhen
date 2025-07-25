@@ -20,7 +20,7 @@ library(purrr) #::modify()
 library(vegan); #select()
 
 
-## hygro ----
+## quick mini view of hygro ----
 
 ASVsITSrarFull_EM_QC %>% 
   filter(Genus == 'Hygrophorus') %>%
@@ -84,6 +84,9 @@ ASVsITSrarFull_EMFfiltSum <-
 qPCRfullQC_EM <- 
   vroom::vroom(
     here('data/qPCRfullQC_EM.csv'))
+
+
+# legacy -- too slow to make full combined table of qPCR and ASVs
 
 #mem=30gb!
 # qPCRabund_EM <- 
@@ -173,6 +176,7 @@ choiceEMFgenera <-
 
 ## comm ----
 
+# legacy, not used
 
 # ASVsITSrar_comm <- ASVsITSrar %>%
 #   select(asv_id, starts_with('X')) %>% #glimpse()
@@ -184,6 +188,8 @@ choiceEMFgenera <-
 # ASVsITSrar_commTbl <- ASVsITSrar_comm %>% as_tibble() %>%
 #   mutate(across(everything(), as.numeric))
 
+
+# MAIN COMMUNITY TABLE 
 
 ASVsITSrarFull_EMFfilt_commTbl <- 
   
@@ -236,6 +242,8 @@ vroom::vroom_write(
 )
 
 
+# rows only
+
 ASVsITSrarFull_EMFfilt_comm <- 
   ASVsITSrarFull_EMFfilt_commTbl %>%
   select(starts_with('ASV')) #%>% #glimpse()
@@ -256,6 +264,9 @@ commTbl_PIAB <- ASVsITSrarFull_EMFfilt_commTbl %>%
 ### divers ----
 
 
+# not used, combined table version below this
+
+
 # ASVsITSrarFull_EMFfilt_rich <- 
 #   
 #   ASVsITSrarFull_EM_QC %>% #distinct_()
@@ -264,6 +275,9 @@ commTbl_PIAB <- ASVsITSrarFull_EMFfilt_commTbl %>%
 #            YYYYMMDD, 
 #            SUBPLOT) %>%
 #   summarize(n = n()) #alternate option, same as vegan::specnumber()
+
+
+# used manual count
 
 ASVsITSrarFull_EMFfilt_richDiv <- 
   
@@ -289,6 +303,7 @@ ASVsITSrarFull_EMFfilt_richDiv <-
   # pivot_longer(c(rich, div), names_to = 'commVar') %>%
 
 
+# exploration type
 ## type ----
 
 ASVsITSrarFull_EMFfiltExploreSum <-
@@ -352,6 +367,7 @@ ASVsITSrarFull_EMFfiltExploreSum <-
 
 #corrplot----
 
+# correlation plot for supplementary figure
 
 ET_corr <- 
   ASVsITSrarFull_EMFfiltExploreSum %>% 
@@ -449,6 +465,9 @@ ET_corr_groups <-
         ) 
     )
   ) 
+
+# not used
+
 # ET_corr_groups %>%
 #   # unnest(corrs)
 #   mutate(
@@ -501,6 +520,8 @@ Genus_corr <-
       SUBPLOT
     )
   ) 
+
+# not used or elaborated on
 
 # Genus_corr_p <- 
 #   Genus_corr %>%

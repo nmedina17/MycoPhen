@@ -10,6 +10,9 @@ source(here('analysis/ordEM.R'))
 library(ggplot2)
 
 
+# theme & text size instead adjusted per figure content
+
+
 # theme_set(
 #   theme_classic() +
 #     theme(
@@ -216,19 +219,32 @@ makeFigOrdPhase <- function(COMM_TBL, ordXY) {
     cbind(ordXY) %>% as_tibble() %>%
     
     group_by(SESSION) %>%
-    summarize('PC1_mean' = median(PC1),
-              'PC1_se' = mad(PC1),
-              'PC2_mean' = median(PC2),
-              'PC2_se' = mad(PC2),
-              'PC3_mean' = median(PC3),
-              'PC3_se' = mad(PC3),
-              
-              'PC1_med' = median(PC1),
-              'PC1_mad' = mad(PC1),
-              'PC2_med' = median(PC2),
-              'PC2_mad' = mad(PC2),
-              'PC3_med' = median(PC3),
-              'PC3_mad' = mad(PC3)) %>%
+    summarize(
+      'PC1_mean' = median(
+        PC1
+      ),
+      'PC1_se' = mad(PC1),
+      'PC2_mean' = median(
+        PC2
+      ),
+      'PC2_se' = mad(PC2),
+      'PC3_mean' = median(
+        PC3
+      ),
+      'PC3_se' = mad(PC3),
+      
+      'PC1_med' = median(
+        PC1
+      ),
+      'PC1_mad' = mad(PC1),
+      'PC2_med' = median(
+        PC2
+      ),
+      'PC2_mad' = mad(PC2),
+      'PC3_med' = median(PC3),
+      'PC3_mad' = mad(PC3)
+    ) %>%
+    
     
     ggplot(aes(PC1_med, PC2_med, color = SESSION)) +
     geom_point() + #geom_line() +
@@ -246,6 +262,9 @@ makeFigOrdPhase <- function(COMM_TBL, ordXY) {
   
   
 }
+
+
+# BELOW CODE IS LEGACY
 
 
 # QUBI ----

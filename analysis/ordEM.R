@@ -20,6 +20,7 @@ library(tibble)
 
 # stat ----
 
+# PERMANOVA
 
 ordStat <- 
   vegan::adonis2(
@@ -97,6 +98,8 @@ permutest( #.betadisper
 ) #!signif
 
 
+# separate independent variable
+
 tax_disp_leafHabit <- 
   betadisper(
     d = 
@@ -153,6 +156,8 @@ permutest( #.betadisper
 
 
 # PCA----
+
+
 ordEMF <- pca(
   ASVsITSrarFull_EMFfilt_commTbl %>% 
     select(
@@ -176,7 +181,8 @@ ordEMF_spp <- ordEMF_sum$species %>%
 
 ###NMDS
 # metaMDS(ASVsITSrarFull_EMFfilt_commTbl %>%
-#           select(!c(1:7))) #2slow?
+#           select(!c(1:7))) #2slow
+
 keep_rows <- 
   ASVsITSrarFull_EMFfilt_commTbl %>%
   select(
@@ -226,6 +232,8 @@ nmdsEMF %>%
 # # PCoA_ITSsum <- ...
 # plot(PCoA_EMF$points)
 
+
+# separate plot-level ordinations not used
 
 getOrd <- function(COMM_TBL) {
   
